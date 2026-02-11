@@ -1,5 +1,5 @@
 # MySQL, PHPMyAdmin and Node.js (ready for Express development)
-
+hi guys
 This will install Mysql and phpmyadmin (including all dependencies to run Phpmyadmin) AND node.js
 
 This receipe is for development - Node.js is run in using supervisor: changes to any file in the app will trigger a rebuild automatically.
