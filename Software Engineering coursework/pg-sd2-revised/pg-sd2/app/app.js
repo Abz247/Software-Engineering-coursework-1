@@ -1,48 +1,66 @@
-// Import express.js
 const express = require("express");
+const session = require("express-session");
+const path = require("path");
 
-// Create express app
 var app = express();
 
-// Add static files location
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("static"));
 
-// Get the functions in the db.js file to use
-const db = require('./services/db');
+const db = require("./services/db");
 
-// Create a route for root - /
-app.get("/", function(req, res) {
-    res.send("Hello world!");
+app.use(session({
+    secret: process.env.SESSION_SECRET || "closetswap-dev-secret-change-me",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 2,
+        httpOnly: true,
+        secure: false
+    }
+}));
+
+const { attachUser } = require("./middleware/auth");
+app.use(attachUser);
+
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
+
+app.get("/", async function (req, res) {
+    try {
+        const listings = await db.query(
+            `SELECT l.id, l.title, l.price, l.size, l.condition,
+                    l.image_url, l.user_id, l.status, l.created_at,
+                    u.username AS seller,
+                    c.name AS category
+             FROM listings l
+             JOIN users u ON l.user_id = u.id
+             LEFT JOIN categories c ON l.category_id = c.id
+             WHERE l.status = 'available'
+             ORDER BY l.created_at DESC
+             LIMIT 12`
+        );
+        res.render("index", { title: "Home", listings: listings });
+    } catch (err) {
+        console.error("Homepage error:", err);
+        res.render("index", { title: "Home", listings: [] });
+    }
 });
 
-// Create a route for testing the db
-app.get("/db_test", function(req, res) {
-    // Assumes a table called test_table exists in your database
-    sql = 'select * from test_table';
-    db.query(sql).then(results => {
-        console.log(results);
-        res.send(results)
-    });
-});
+app.use("/", authRoutes);
+app.use("/users", userRoutes);
 
-// Create a route for /goodbye
-// Responds to a 'GET' request
-app.get("/goodbye", function(req, res) {
-    res.send("Goodbye world!");
-});
+// Uncomment when listing routes are ready:
+// const listingRoutes = require("./routes/listings");
+// app.use("/listings", listingRoutes);
 
-// Create a dynamic route for /hello/<name>, where name is any value provided by user
-// At the end of the URL
-// Responds to a 'GET' request
-app.get("/hello/:name", function(req, res) {
-    // req.params contains any parameters in the request
-    // We can examine it in the console for debugging purposes
-    console.log(req.params);
-    //  Retrieve the 'name' parameter and use it in a dynamically generated page
-    res.send("Hello " + req.params.name);
-});
+// Uncomment when category routes are ready:
+// const categoryRoutes = require("./routes/categories");
+// app.use("/categories", categoryRoutes);
 
-// Start server on port 3000
-app.listen(3000,function(){
-    console.log(`Server running at http://127.0.0.1:3000/`);
+app.listen(3000, function () {
+    console.log("ClosetSwap running at http://127.0.0.1:3000/");
 });
