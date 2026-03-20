@@ -1,4 +1,4 @@
-Hi GENTS!!
+THIS IS AN EXAMPLE!!!
 # MySQL, PHPMyAdmin and Node.js (ready for Express development)
 
 This will install Mysql and phpmyadmin (including all dependencies to run Phpmyadmin) AND node.js
