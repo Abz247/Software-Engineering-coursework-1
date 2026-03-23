@@ -1,4 +1,4 @@
-THIS IS AN EXAMPLE
+THIS IS AN EXAMPLE for real
 
 # MySQL, PHPMyAdmin and Node.js (ready for Express development)
 
