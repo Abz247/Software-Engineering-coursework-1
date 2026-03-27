@@ -1,3 +1,6 @@
-// Entry point for the application
-// This file is referenced by supervisor in docker-compose.yml
-require('./app/app');
+"use strict";
+
+// Include the app.js file.
+// This will run the code.
+console.log("entrypoint");
+const app = require("./app/app.js");
