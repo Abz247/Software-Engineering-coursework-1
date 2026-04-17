@@ -1,0 +1,36 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title #{title} | ClosetSwap
+    link(rel="stylesheet" href="/css/style.css")
+
+  body
+    nav.navbar
+      .navbar-brand
+        a(href="/") ClosetSwap
+      .navbar-links
+        a(href="/listings") Browse
+        if user
+          a(href="/listings/create") Sell Item
+          a(href="/users/" + user.id) My Profile
+          a(href="/logout") Logout
+        else
+          a(href="/login") Log In
+          a(href="/register") Sign Up
+
+    .container
+      if success
+        .alert.alert-success= success
+      if error
+        .alert.alert-error= error
+      if errors && errors.length
+        each err in errors
+          .alert.alert-error= err
+
+    main.container
+      block content
+
+    footer.footer
+      p &copy; 2026 ClosetSwap – Sustainable Fashion for Students
