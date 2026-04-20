@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  if profileUser
+    .profile
+      .profile__header
+        .profile__avatar= profileUser.username.charAt(0).toUpperCase()
+        .profile__meta
+          h1.profile__name= profileUser.username
+          p.profile__email= profileUser.email
+
+      section.profile__section
+        h2.profile__section-title Listings
+          span.badge= profileUser.listings ? profileUser.listings.length : 0
+
+        if profileUser.listings && profileUser.listings.length
+          ul.listing-list
+            each listing in profileUser.listings
+              li.listing-list__item
+                a.listing-list__link(href=`/listings/${listing.id}`)
+                  span.listing-list__title= listing.title
+                  span.listing-list__date= new Date(listing.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        else
+          p.empty-state No listings yet.
+  else
+    p.empty-state User not found.
