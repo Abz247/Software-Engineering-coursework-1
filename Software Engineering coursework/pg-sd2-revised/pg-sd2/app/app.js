@@ -28,6 +28,7 @@ app.use(attachUser);
 
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
+const messageRoutes = require("./routes/messages");
 
 app.get("/", async function (req, res) {
     try {
@@ -52,6 +53,7 @@ app.get("/", async function (req, res) {
 
 app.use("/", authRoutes);
 app.use("/users", userRoutes);
+app.use("/messages", messageRoutes);
 
 // Uncomment when listing routes are ready:
 // const listingRoutes = require("./routes/listings");
