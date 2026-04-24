@@ -1,0 +1,9 @@
+MYSQL_HOST=localhost
+MYSQL_USER=admin
+MYSQL_PASS=password
+MYSQL_ROOT_PASSWORD=password
+MYSQL_DATABASE=sd2-db
+MYSQL_ROOT_USER=root
+DB_CONTAINER=db
+DB_PORT=3306
+SESSION_SECRET=closetswap-change-this-secret-abc123

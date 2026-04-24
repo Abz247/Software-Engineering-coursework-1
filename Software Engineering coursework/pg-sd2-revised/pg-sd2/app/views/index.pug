@@ -1,0 +1,31 @@
+extends layout
+
+block content
+  .hero
+    h1 Sustainable Fashion for Students
+    p Buy and sell pre-loved clothing within your university community.
+    .hero-actions
+      a.btn.btn-primary(href="/listings") Browse Items
+      if !user
+        a.btn.btn-outline(href="/register") Join Now
+
+  h2 Latest Listings
+
+  if listings && listings.length
+    .listings-grid
+      each item in listings
+        .listing-card
+          if item.image_url
+            img.listing-img(src=item.image_url alt=item.title)
+          .listing-card-body
+            h3.listing-title= item.title
+            p.listing-price= "£" + parseFloat(item.price).toFixed(2)
+            p.listing-meta= item.size + " · " + item.condition
+            if item.category
+              span.listing-tag= item.category
+            p.listing-meta
+              | by 
+              a(href="/users/" + item.user_id)= item.seller
+            a.btn.btn-sm(href="/listings/" + item.id) View Details
+  else
+    p.empty-state No items have been listed yet.
