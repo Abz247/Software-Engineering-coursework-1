@@ -1,0 +1,28 @@
+extends layout
+block content
+  h1 #{heading}
+  p ClosetSwap is a university-focused online marketplace designed to help students buy, sell, and exchange second-hand clothing in a simple, affordable, and sustainable way.
+
+  if user
+    p You are signed in as #[strong #{user.username}]. Browse the latest listings or post your own item.
+  else
+    p Create an account or sign in to post listings and manage your profile.
+
+  if listings && listings.length
+    h2.page-title Latest listings
+    .listings-grid
+      each item in listings
+        article.listing-card
+          a(href='/listings/' + item.id)
+            if item.image_url
+              img(src=item.image_url alt=item.title)
+            else
+              img(src='https://via.placeholder.com/600x400?text=No+Image' alt='No image available')
+          .listing-card-content
+            h3
+              a(href='/listings/' + item.id)= item.title
+            p.listing-meta £#{item.price}
+            p.listing-meta Seller: #{item.username || 'Unknown seller'}
+            p.listing-meta Category: #{item.category || 'Uncategorised'}
+    p(style='margin-top:1rem;')
+      a.button(href='/listings') View all listings
