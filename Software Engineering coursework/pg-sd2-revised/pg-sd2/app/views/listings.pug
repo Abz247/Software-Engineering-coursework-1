@@ -1,0 +1,59 @@
+extends layout
+
+block content
+    h2.page-title Listings
+
+    form(action='/listings' method='GET' class='search-form')
+        .form-group
+            label(for='search') Search listings
+            input#search(type='text' name='search' placeholder='Search by title, description or category' value=searchTerm || '')
+        button.button(type='submit') Search
+
+    .filter-sections
+        .filter-group
+            h3.filter-heading Browse All
+            .filter-bar
+                a.filter-link(class=!selectedCategory ? 'active' : '' href="/listings") All
+
+        .filter-group
+            h3.filter-heading Women
+            .filter-bar
+                if categories && categories.length
+                    each category in categories
+                        if category.name.startsWith('Women')
+                            a.filter-link(
+                                class=selectedCategory == category.id ? 'active' : ''
+                                href='/categories/' + category.id
+                            )= category.name.replace('Women - ', '')
+
+        .filter-group
+            h3.filter-heading Men
+            .filter-bar
+                if categories && categories.length
+                    each category in categories
+                        if category.name.startsWith('Men')
+                            a.filter-link(
+                                class=selectedCategory == category.id ? 'active' : ''
+                                href='/categories/' + category.id
+                            )= category.name.replace('Men - ', '')
+
+    if listings && listings.length
+        .listings-grid
+            each item in listings
+                article.listing-card
+                    a(href='/listings/' + item.id)
+                        if item.image_url
+                            img(src=item.image_url alt=item.title)
+                        else
+                            img(src='https://via.placeholder.com/600x400?text=No+Image' alt='No image available')
+                    .listing-card-content
+                        h3
+                            a(href='/listings/' + item.id)= item.title
+                        p.listing-meta £#{item.price}
+                        p.listing-meta Seller: #{item.seller || item.username || 'Unknown seller'}
+                        if item.category
+                            p.listing-meta Category: #{item.category}
+                        a.button.secondary(href='/listings/' + item.id) View details
+    else
+        .empty-state
+            p No listings found.

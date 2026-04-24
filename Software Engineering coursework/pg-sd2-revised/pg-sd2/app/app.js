@@ -1,19 +1,15 @@
-const express = require("express");
-const session = require("express-session");
-const path = require("path");
-
-var app = express();
-
-app.set("view engine", "pug");
-app.set("views", path.join(__dirname, "views"));
-
+cat > app/app.js << 'EOF'
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("static"));
-
-const db = require("./services/db");
-
+app.use(express.json());
+app.use(express.static('static'));
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 app.use(session({
-    secret: process.env.SESSION_SECRET || "closetswap-dev-secret-change-me",
+    secret: process.env.SESSION_SECRET || 'closetswap-dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -22,47 +18,45 @@ app.use(session({
         secure: false
     }
 }));
-
-const { attachUser } = require("./middleware/auth");
+const { attachUser } = require('./middleware/auth');
 app.use(attachUser);
-
-const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/users");
-const messageRoutes = require("./routes/messages");
-
-app.get("/", async function (req, res) {
+const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users');
+const listingsRoutes = require('./routes/listings');
+const messageRoutes = require('./routes/messages');
+const listingModel = require('./models/listingModel');
+app.get('/', async function(req, res) {
     try {
-        const listings = await db.query(
-            `SELECT l.id, l.title, l.price, l.size, l.condition,
-                    l.image_url, l.user_id, l.status, l.created_at,
-                    u.username AS seller,
-                    c.name AS category
-             FROM listings l
-             JOIN users u ON l.user_id = u.id
-             LEFT JOIN categories c ON l.category_id = c.id
-             WHERE l.status = 'available'
-             ORDER BY l.created_at DESC
-             LIMIT 12`
-        );
-        res.render("index", { title: "Home", listings: listings });
+        const listings = await listingModel.getAllListings();
+        res.render('index', {
+            heading: 'Welcome to ClosetSwap',
+            listings: listings.slice(0, 8)
+        });
     } catch (err) {
-        console.error("Homepage error:", err);
-        res.render("index", { title: "Home", listings: [] });
+        console.error(err);
+        res.render('index', { heading: 'Welcome to ClosetSwap', listings: [] });
     }
 });
-
-app.use("/", authRoutes);
-app.use("/users", userRoutes);
-app.use("/messages", messageRoutes);
-
-// Uncomment when listing routes are ready:
-// const listingRoutes = require("./routes/listings");
-// app.use("/listings", listingRoutes);
-
-// Uncomment when category routes are ready:
-// const categoryRoutes = require("./routes/categories");
-// app.use("/categories", categoryRoutes);
-
-app.listen(3000, function () {
-    console.log("ClosetSwap running at http://127.0.0.1:3000/");
+app.use('/', authRoutes);
+app.use('/users', usersRoutes);
+app.use('/listings', listingsRoutes);
+app.use('/messages', messageRoutes);
+app.get('/categories/:id', async (req, res) => {
+    try {
+        const listings = await listingModel.getListingsByCategory(req.params.id);
+        const categories = await listingModel.getAllCategories();
+        res.render('listings', {
+            listings,
+            categories,
+            selectedCategory: Number(req.params.id),
+            searchTerm: ''
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error loading category listings');
+    }
 });
+app.listen(3000, function() {
+    console.log('Server running at http://127.0.0.1:3000/');
+});
+EOF

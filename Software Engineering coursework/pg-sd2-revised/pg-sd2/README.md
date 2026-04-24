@@ -2,7 +2,7 @@
 
 This will install Mysql and phpmyadmin (including all dependencies to run Phpmyadmin) AND node.js
 
-This receipe is for development - Node.js is run in using supervisor: changes to any file in the app will trigger a rebuild automatically.
+This setup is for development. The Node.js app runs inside Docker and can be rebuilt easily during development.
 
 For security, this receipe uses a .env file for credentials.  A sample is provided in the env-sample file. If using these files for a fresh project, copy the env-sample file to a file called .env.  Do NOT commit the changed .env file into your new project for security reasons (in the node package its included in .gitignore so you can't anyway)
 
@@ -12,16 +12,18 @@ Local files are mounted into the container using the 'volumes' directive in the 
 
 ### Super-quickstart your new project:
 
-* Make sure that you don't have any other containers running usind docker ps
-* run ```docker-compose up --build```
+* Make sure Docker Desktop is running 
+*  In the project folder, run: ```bash
+!!! DO NOT USE "docker-compose down -v" !!!
+docker-compose up --build
 
 #### Visit phphmyadmin at:
 
-http://localhost:8081/
+http://localhost:8082/
 
 #### Visit your express app at:
 
-http://localhost:3000
+http://localhost:3001
 
 For reference, see the video at: https://roehampton.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6f290a6b-ba94-4729-9632-adcf00ac336e
 
