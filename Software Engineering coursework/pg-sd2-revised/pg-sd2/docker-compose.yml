@@ -4,6 +4,7 @@ services:
       context: ./
     volumes:
       - .:/src
+      - /src/node_modules
     command: sh -c "node index.js"
     ports:
       - "3001:3000"
