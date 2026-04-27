@@ -37,7 +37,7 @@ CREATE TABLE `test_table` (
 --
 
 INSERT INTO `test_table` (`id`, `name`) VALUES
-(1, 'Lisa'),
+(1, 'Lisas'),
 (2, 'Kimia');
 
 --
