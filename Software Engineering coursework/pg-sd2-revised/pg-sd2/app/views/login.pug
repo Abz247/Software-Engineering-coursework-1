@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  .auth-card
+    h1.auth-card__title Welcome back
+    p.auth-card__sub No account?&nbsp;
+      a(href='/register') Register
+
+    if errors && errors.length
+      .error-box(style='margin-bottom:1rem;')
+        ul.error-list
+          each err in errors
+            li= err
+
+    form.form(action='/login', method='POST')
+      .form__group
+        label.form__label(for='email') Email
+        input.form__input(
+          type='email',
+          id='email',
+          name='email',
+          value=formData && formData.email,
+          placeholder='you@example.com',
+          required,
+          autocomplete='email'
+        )
+
+      .form__group
+        label.form__label(for='password') Password
+        input.form__input(
+          type='password',
+          id='password',
+          name='password',
+          placeholder='Your password',
+          required,
+          autocomplete='current-password'
+        )
+
+      button.btn.btn--primary(type='submit') Sign in

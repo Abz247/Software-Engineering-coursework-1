@@ -1,7 +1,7 @@
 {
-  "name": "sd2-example",
+  "name": "closetswap-sd2-merged",
   "version": "1.0.0",
-  "description": "",
+  "description": "Merged ClosetSwap SD2 project with auth, sessions and MySQL schema",
   "main": "index.js",
   "scripts": {
     "start": "supervisor index.js",
@@ -10,11 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "express-session": "^1.17.3",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.0",
-    "sqlite3": "^5.0.2",
+    "pug": "^3.0.3",
     "supervisor": "^0.12.0"
   }
 }
