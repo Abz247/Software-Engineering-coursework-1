@@ -1,0 +1,95 @@
+extends layout
+
+block content
+  .auth-card
+    h1.auth-card__title Welcome back
+    p.auth-card__sub No account?&nbsp;
+      a(href='/register') Register
+
+    if errors && errors.length
+      .error-box(style='margin-bottom:1rem;')
+        ul.error-list
+          each err in errors
+            li= err
+
+    #clerk-sign-in
+
+  style.
+    #clerk-sign-in {
+      display: flex;
+      justify-content: center;
+    }
+    #clerk-sign-in > * {
+      width: 100%;
+    }
+  script.
+    (async function() {
+      try {
+        var pk = 'pk_test_Zmx5aW5nLWNoaXBtdW5rLTc0LmNsZXJrLmFjY291bnRzLmRldiQ';
+
+        // Set the key BEFORE loading the script so Clerk auto-inits with the correct key
+        window.__clerk_publishable_key = pk;
+
+        // Load the UI bundle first so __internal_ClerkUICtor is available before Clerk.load()
+        var clerkDomain = atob(pk.split('_')[2]).slice(0, -1);
+        await new Promise(function(resolve) {
+          var s = document.createElement('script');
+          s.src = 'https://' + clerkDomain + '/npm/@clerk/ui@1/dist/ui.browser.js';
+          s.async = true;
+          s.crossOrigin = 'anonymous';
+          s.onload = resolve;
+          s.onerror = resolve;
+          document.head.appendChild(s);
+        });
+
+        // Now load the main Clerk script - it will auto-init using __clerk_publishable_key
+        await new Promise(function(resolve, reject) {
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+
+        // Wait for window.Clerk to be the initialised instance
+        var attempts = 0;
+        while ((!window.Clerk || !window.Clerk.load) && attempts < 30) {
+          await new Promise(function(r) { setTimeout(r, 100); });
+          attempts++;
+        }
+
+        if (!window.Clerk) {
+          console.warn('Clerk did not initialize');
+          return;
+        }
+
+        await window.Clerk.load({
+          signInUrl: '/login',
+          signUpUrl: '/register',
+          ui: window.__internal_ClerkUICtor ? { ClerkUI: window.__internal_ClerkUICtor } : undefined
+        });
+
+        function syncAndRedirect(user) {
+          var email = (user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) || '';
+          var username = user.username || user.firstName || email.split('@')[0];
+          fetch('/clerk-callback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clerkUserId: user.id, email: email, username: username })
+          }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.ok) window.location.href = data.redirect || '/';
+          });
+        }
+
+        if (window.Clerk.isSignedIn) {
+          syncAndRedirect(window.Clerk.user);
+        } else {
+          window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
+          window.Clerk.addListener(function(resources) {
+            if (resources.user) syncAndRedirect(resources.user);
+          });
+        }
+      } catch(e) {
+        console.warn('Clerk init error:', e);
+      }
+    })();

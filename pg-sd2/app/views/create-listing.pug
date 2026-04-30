@@ -1,0 +1,56 @@
+extends layout
+
+block content
+    .form-card
+        h2 Create Listing
+
+        if errors && errors.length
+            .error-box
+                h3 Please fix the following:
+                ul.error-list
+                    each error in errors
+                        li= error
+
+        form(action='/listings/create' method='POST')
+            .form-group
+                label(for='title') Title
+                input#title(type='text' name='title' required minlength='3' maxlength='100' value=formData && formData.title ? formData.title : '')
+
+            .form-group
+                label(for='description') Description
+                textarea#description(name='description' required minlength='10')= formData && formData.description ? formData.description : ''
+
+            .form-group
+                label(for='price') Price
+                input#price(type='number' step='0.01' min='0' name='price' required value=formData && formData.price ? formData.price : '')
+
+            .form-group
+                label(for='size') Size
+                input#size(type='text' name='size' value=formData && formData.size ? formData.size : '')
+
+            .form-group
+                label(for='condition') Condition
+                select#condition(name='condition' required)
+                    - const selectedCondition = formData && formData.condition ? formData.condition : ''
+                    option(value='') Select condition
+                    option(value='New with tags' selected=selectedCondition==='New with tags') New with tags
+                    option(value='Excellent' selected=selectedCondition==='Excellent') Excellent
+                    option(value='Good' selected=selectedCondition==='Good') Good
+                    option(value='Fair' selected=selectedCondition==='Fair') Fair
+
+            .form-group
+                label(for='image_url') Image URL
+                input#image_url(type='url' name='image_url' value=formData && formData.image_url ? formData.image_url : '')
+
+            .form-group
+                label(for='category_id') Category
+                select#category_id(name='category_id' required)
+                    option(value='') Select a category
+                    if categories && categories.length
+                        each category in categories
+                            option(
+                                value=category.id
+                                selected=formData && String(formData.category_id) === String(category.id)
+                            )= category.name
+
+            button.button(type='submit') Create listing

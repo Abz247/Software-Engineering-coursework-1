@@ -1,0 +1,29 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title ClosetSwap
+    link(rel='stylesheet' href='/style.css')
+  body
+    header.site-header
+      .container
+        h1.logo
+          a(href='/') ClosetSwap
+        nav.nav
+          a(href='/') Home
+          a(href='/listings') Listings
+          a(href='/listings/create') Sell an Item
+          a(href='/users') Users
+          if user
+            a(href=`/users/${user.id}`) My Profile
+            a(href='/logout') Logout
+          else
+            a(href='/login') Login
+            a(href='/register') Register
+    main.container
+      if success
+        .empty-state(style='border-color:#b7e4c7;background:#f1fff4;margin-bottom:1rem;')= success
+      if error
+        .error-box(style='margin-bottom:1rem;')= error
+      block content
