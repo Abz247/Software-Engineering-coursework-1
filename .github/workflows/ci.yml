@@ -1,7 +1,6 @@
 name: ClosetSwap CI Pipeline
 
 on:
- on:
   push:
     branches: [ main, master, Sprint-4-Abdala ]
   pull_request:
