@@ -2,22 +2,31 @@ extends layout
 
 block content
   .page-header
-    h1.page-header__title
-      a(href='/messages/inbox') Messages
-      |  › #{other_user.username}
+    div
+      h1.page-header__title
+        a(href='/messages/inbox') Messages
+        |  > #{other_user.username}
+      p.page-header__subtitle Arrange swaps, collection times, and item questions.
 
-  .chat-thread
-    if messages && messages.length
-      each msg in messages
-        .chat-bubble(class=msg.sender_id === currentUserId ? 'chat-bubble--sent' : 'chat-bubble--received')
-          p.chat-bubble__text= msg.content
-          span.chat-bubble__time= new Date(msg.created_at).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'})
-    else
-      p.empty-state No messages.
+  section.chat-panel
+    .chat-panel__header
+      div
+        p.chat-panel__eyebrow Active chat
+        h2= other_user.username
+      a.button.secondary(href='/messages/inbox') Back to inbox
 
-  .form-card(style='margin-top:1.5rem')
-    form(action='/messages/send' method='POST')
+    .chat-thread(data-chat-thread)
+      if messages && messages.length
+        each msg in messages
+          article.message-bubble(class=msg.sender_id === currentUserId ? 'message-bubble--outgoing' : 'message-bubble--incoming')
+            p= msg.content
+            span= new Date(msg.created_at).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'})
+      else
+        p.empty-state No messages yet.
+
+    form.message-form(action='/messages/send' method='POST' data-message-form)
       input(type='hidden' name='receiver_id' value=other_user.id)
       .form-group
-        textarea.form__input(name='content' placeholder='Type a message…' required maxlength='1000' rows='3')
-      button.button(type='submit' style='margin-top:0.5rem') Send
+        label(for='content') Message
+        textarea#content.form__input(name='content' placeholder='Type a message...' required maxlength='1000' rows='3')
+      button.button(type='submit') Send

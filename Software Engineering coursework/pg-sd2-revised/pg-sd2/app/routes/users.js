@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../models/userModel');
 const listingModel = require('../models/listingModel');
+const db = require('../services/db');
 
 router.get('/', async function(req, res) {
     try {
         const users = await userModel.getAllUsers();
 
-        res.render('users/list', {
+        res.render('users', {
             title: 'All Users',
             users
         });
@@ -35,8 +36,16 @@ router.get('/:id', async function(req, res) {
         }
 
         const listings = await listingModel.getListingsByUserId(userId);
+        const ratings = await db.query(
+            'SELECT AVG(rating) AS average, COUNT(*) AS count FROM ratings WHERE user_id = ?',
+            [userId]
+        );
 
-        res.render('users/profile', {
+        profileUser.listings = listings;
+        profileUser.averageRating = ratings[0].average ? Number(ratings[0].average).toFixed(1) : 'No ratings yet';
+        profileUser.ratingCount = ratings[0].count || 0;
+
+        res.render('profile', {
             title: `${profileUser.username}'s Profile`,
             profileUser,
             listings,

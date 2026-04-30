@@ -181,9 +181,125 @@ function setupNavigation() {
   });
 }
 
+function getClerkDomain(publishableKey) {
+  try {
+    return atob(publishableKey.split("_")[2]).slice(0, -1);
+  } catch (error) {
+    return "";
+  }
+}
+
+function loadScript(src, attributes = {}) {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+
+    if (existing) {
+      existing.addEventListener("load", resolve, { once: true });
+      existing.addEventListener("error", reject, { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    script.crossOrigin = "anonymous";
+
+    Object.entries(attributes).forEach(([key, value]) => {
+      script.setAttribute(key, value);
+    });
+
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => reject(new Error(`Failed to load ${src}`)), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+async function syncClerkSession(user) {
+  const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress;
+
+  if (!email) {
+    return;
+  }
+
+  const response = await fetch("/auth/clerk/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      clerkUserId: user.id,
+      email,
+      username: user.username,
+      fullName: user.fullName,
+    }),
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+    window.location.assign(result.redirectTo || "/");
+  }
+}
+
+async function setupClerkAuth() {
+  const authContainer = document.querySelector("[data-clerk-auth]");
+
+  if (!authContainer) {
+    return;
+  }
+
+  const publishableKey = authContainer.dataset.clerkPublishableKey;
+  const mode = authContainer.dataset.clerkMode || "sign-in";
+  const clerkDomain = getClerkDomain(publishableKey);
+
+  if (!publishableKey || !clerkDomain) {
+    authContainer.innerHTML = '<p class="auth-notice">Google sign in is missing a valid Clerk publishable key.</p>';
+    return;
+  }
+
+  authContainer.innerHTML = '<p class="auth-loading">Loading Google sign in...</p>';
+
+  try {
+    await loadScript(`https://${clerkDomain}/npm/@clerk/ui@1/dist/ui.browser.js`);
+    await loadScript(`https://${clerkDomain}/npm/@clerk/clerk-js@6/dist/clerk.browser.js`, {
+      "data-clerk-publishable-key": publishableKey,
+    });
+
+    await window.Clerk.load({
+      ui: { ClerkUI: window.__internal_ClerkUICtor },
+    });
+
+    if (window.Clerk.isSignedIn && window.Clerk.user) {
+      await syncClerkSession(window.Clerk.user);
+      return;
+    }
+
+    authContainer.innerHTML = "";
+
+    if (mode === "sign-up") {
+      window.Clerk.mountSignUp(authContainer, {
+        afterSignUpUrl: "/register",
+        afterSignInUrl: "/login",
+      });
+    } else {
+      window.Clerk.mountSignIn(authContainer, {
+        afterSignInUrl: "/login",
+        afterSignUpUrl: "/register",
+      });
+    }
+
+    window.Clerk.addListener(async ({ user }) => {
+      if (user) {
+        await syncClerkSession(user);
+      }
+    });
+  } catch (error) {
+    authContainer.innerHTML = '<p class="auth-notice">Google sign in could not load. Check your Clerk settings and internet connection.</p>';
+    console.error("Clerk setup error:", error);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupFormValidation();
   setupRating();
   setupMessaging();
+  setupClerkAuth();
 });

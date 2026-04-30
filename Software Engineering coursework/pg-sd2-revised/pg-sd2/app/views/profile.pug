@@ -8,6 +8,9 @@ block content
         .profile__meta
           h1.profile__name= profileUser.username
           p.profile__email= profileUser.email
+          p.profile__email Rating: #{profileUser.averageRating}
+            if profileUser.ratingCount
+              |  (#{profileUser.ratingCount} rating#{profileUser.ratingCount === 1 ? '' : 's'})
 
       section.profile__section
         h2.profile__section-title Listings

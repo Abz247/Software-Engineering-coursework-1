@@ -14,7 +14,7 @@ block content
                 .listing-facts
                     p
                         strong Price:
-                        |  £#{listing.price}
+                        |  GBP #{listing.price}
                     p
                         strong Seller:
                         |  #{listing.seller || listing.username || 'Unknown seller'}
@@ -36,17 +36,21 @@ block content
                         h3 Description
                         p= listing.description
 
-                .rating-panel(data-rating-group)
-                    h3 Rate this seller
-                    p.rating-panel__hint Choose a rating from 1 to 5.
-                    input(type='hidden' name='rating' value='')
-                    .rating-stars(aria-label='Seller rating')
-                        button.rating-star(type='button' data-rating-value='1' aria-label='1 star') ★
-                        button.rating-star(type='button' data-rating-value='2' aria-label='2 stars') ★
-                        button.rating-star(type='button' data-rating-value='3' aria-label='3 stars') ★
-                        button.rating-star(type='button' data-rating-value='4' aria-label='4 stars') ★
-                        button.rating-star(type='button' data-rating-value='5' aria-label='5 stars') ★
-                    p.form-feedback(data-rating-feedback)
+                if user && Number(user.id) !== Number(listing.user_id)
+                    form.rating-panel(action='/ratings' method='POST' data-rating-group)
+                        h3 Rate this seller
+                        p.rating-panel__hint Choose a rating from 1 to 5.
+                        input(type='hidden' name='user_id' value=listing.user_id)
+                        input(type='hidden' name='redirect_to' value='/listings/' + listing.id)
+                        input(type='hidden' name='rating' value='')
+                        .rating-stars(aria-label='Seller rating')
+                            button.rating-star(type='button' data-rating-value='1' aria-label='1 star') *
+                            button.rating-star(type='button' data-rating-value='2' aria-label='2 stars') *
+                            button.rating-star(type='button' data-rating-value='3' aria-label='3 stars') *
+                            button.rating-star(type='button' data-rating-value='4' aria-label='4 stars') *
+                            button.rating-star(type='button' data-rating-value='5' aria-label='5 stars') *
+                        p.form-feedback(data-rating-feedback)
+                        button.button.secondary(type='submit') Submit rating
 
                 .actions
                     if user && Number(user.id) === Number(listing.user_id)

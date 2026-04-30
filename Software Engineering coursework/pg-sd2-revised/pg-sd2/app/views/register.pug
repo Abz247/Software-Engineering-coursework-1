@@ -6,6 +6,12 @@ block content
     p.auth-card__sub Already have one?&nbsp;
       a(href='/login') Sign in
 
+    if clerkPublishableKey
+      .clerk-auth(data-clerk-auth data-clerk-mode='sign-up' data-clerk-publishable-key=clerkPublishableKey)
+    else
+      .auth-notice
+        p Google sign in is not configured. Add your Clerk publishable key to the .env file.
+
     if errors && errors.length
       .error-box(style='margin-bottom:1rem;')
         ul.error-list

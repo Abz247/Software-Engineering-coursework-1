@@ -1,6 +1,11 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const env = require('dotenv').config();
+
+if (env.parsed) {
+    Object.assign(process.env, env.parsed);
+}
 
 const app = express();
 
@@ -24,11 +29,17 @@ app.use(session({
 
 const { attachUser } = require('./middleware/auth');
 app.use(attachUser);
+app.use(function(req, res, next) {
+    res.locals.clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY || '';
+    next();
+});
+
 
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const listingsRoutes = require('./routes/listings');
 const messageRoutes = require('./routes/messages');
+const ratingsRoutes = require('./routes/ratings');
 const listingModel = require('./models/listingModel');
 
 app.get('/', async function(req, res) {
@@ -53,6 +64,7 @@ app.use('/', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/listings', listingsRoutes);
 app.use('/messages', messageRoutes);
+app.use('/ratings', ratingsRoutes);
 
 app.get('/categories/:id', async function(req, res) {
     try {

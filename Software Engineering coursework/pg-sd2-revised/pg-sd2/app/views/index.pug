@@ -2,24 +2,27 @@ extends layout
 
 block content
   .hero
-    h1 Sustainable Fashion for Students
-    p ClosetSwap is a university-focused marketplace for buying, selling, and exchanging second-hand clothing.
+    .hero__content
+      p.hero__eyebrow Student clothing marketplace
+      h1 Sustainable Fashion for Students
+      p ClosetSwap helps students buy, sell, and exchange second-hand clothing on campus.
     .hero-actions
       a.btn.btn-primary(href="/listings") Browse Items
       if user
-        a.btn.btn-outline(href="/listings/new") Sell an Item
+        a.btn.btn-outline(href="/listings/create") Sell an Item
       else
         a.btn.btn-outline(href="/register") Join Now
 
-  if user
-    p You are signed in as #[strong #{user.username}].
-  else
-    p Create an account or sign in to post listings and manage your profile.
-
-  h2 Latest Listings
+  .section-heading
+    div
+      h2 Latest Listings
+      if user
+        p Signed in as #[strong #{user.username}].
+      else
+        p Create an account or sign in to post listings and manage your profile.
+    a.btn.btn-outline(href="/listings") View All
 
   if listings && listings.length
-    h2.page-title Latest listings
     .listings-grid
       each item in listings
         article.listing-card
@@ -31,9 +34,9 @@ block content
           .listing-card-body
             h3.listing-title
               a(href="/listings/" + item.id)= item.title
-            p.listing-price= "£" + parseFloat(item.price).toFixed(2)
+            p.listing-price= "GBP " + parseFloat(item.price).toFixed(2)
             if item.size || item.condition
-              p.listing-meta= [item.size, item.condition].filter(Boolean).join(" · ")
+              p.listing-meta= [item.size, item.condition].filter(Boolean).join(" / ")
             if item.category
               span.listing-tag= item.category
             p.listing-meta
@@ -43,8 +46,5 @@ block content
               else
                 | #{item.seller || item.username || "Unknown seller"}
             a.btn.btn-sm(href="/listings/" + item.id) View Details
-
-    p(style="margin-top:1rem;")
-      a.btn.btn-outline(href="/listings") View all listings
   else
     p.empty-state No items have been listed yet.

@@ -1,7 +1,12 @@
 extends layout
 
 block content
-    h2.page-title Listings
+    .page-header
+        div
+            h1.page-header__title Listings
+            p.page-header__subtitle Browse available clothing by search term or category.
+        if user
+            a.button(href='/listings/create') Sell an Item
 
     form(action='/listings' method='GET' class='search-form')
         .form-group
@@ -49,7 +54,7 @@ block content
                     .listing-card-content
                         h3
                             a(href='/listings/' + item.id)= item.title
-                        p.listing-meta £#{item.price}
+                        p.listing-meta GBP #{item.price}
                         p.listing-meta Seller: #{item.seller || item.username || 'Unknown seller'}
                         if item.category
                             p.listing-meta Category: #{item.category}

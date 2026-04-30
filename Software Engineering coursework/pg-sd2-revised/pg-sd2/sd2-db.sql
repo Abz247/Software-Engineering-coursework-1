@@ -1,6 +1,8 @@
 CREATE DATABASE IF NOT EXISTS `sd2-db`;
 USE `sd2-db`;
 
+DROP TABLE IF EXISTS `messages`;
+DROP TABLE IF EXISTS `ratings`;
 DROP TABLE IF EXISTS `listings`;
 DROP TABLE IF EXISTS `categories`;
 DROP TABLE IF EXISTS `users`;
@@ -32,6 +34,32 @@ CREATE TABLE `listings` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `messages` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `sender_id` INT NOT NULL,
+    `receiver_id` INT NOT NULL,
+    `content` TEXT NOT NULL,
+    `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`sender_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`receiver_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_sender` (`sender_id`),
+    INDEX `idx_receiver` (`receiver_id`),
+    INDEX `idx_conversation` (`sender_id`, `receiver_id`, `created_at`)
+);
+
+CREATE TABLE `ratings` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `reviewer_id` INT NOT NULL,
+    `rating` INT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `unique_rating` (`user_id`, `reviewer_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`reviewer_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    CHECK (`rating` >= 1 AND `rating` <= 5)
 );
 
 INSERT INTO `users` (`username`, `email`, `password_hash`) VALUES

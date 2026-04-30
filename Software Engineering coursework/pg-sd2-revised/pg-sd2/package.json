@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "supervisor index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check index.js && node --check app/app.js && node --check app/routes/auth.js && node --check app/routes/listings.js && node --check app/routes/messages.js && node --check app/routes/ratings.js && node --check app/routes/users.js"
   },
   "author": "",
   "license": "ISC",
