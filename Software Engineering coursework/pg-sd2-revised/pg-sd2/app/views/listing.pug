@@ -1,0 +1,62 @@
+extends layout
+
+block content
+    if listing
+        .detail-layout
+            .listing-image
+                if listing.image_url
+                    img(src=listing.image_url alt=listing.title)
+                else
+                    img(src='https://via.placeholder.com/800x500?text=No+Image' alt='No image available')
+
+            .listing-info
+                h2= listing.title
+                .listing-facts
+                    p
+                        strong Price:
+                        |  £#{listing.price}
+                    p
+                        strong Seller:
+                        |  #{listing.seller || listing.username || 'Unknown seller'}
+                    p
+                        strong Category:
+                        |  #{listing.category || 'Uncategorised'}
+                    p
+                        strong Size:
+                        |  #{listing.size || 'Not specified'}
+                    p
+                        strong Condition:
+                        |  #{listing.condition || 'Not specified'}
+                    p
+                        strong Status:
+                        |  #{listing.status || 'Available'}
+
+                if listing.description
+                    .listing-description
+                        h3 Description
+                        p= listing.description
+
+                .rating-panel(data-rating-group)
+                    h3 Rate this seller
+                    p.rating-panel__hint Choose a rating from 1 to 5.
+                    input(type='hidden' name='rating' value='')
+                    .rating-stars(aria-label='Seller rating')
+                        button.rating-star(type='button' data-rating-value='1' aria-label='1 star') ★
+                        button.rating-star(type='button' data-rating-value='2' aria-label='2 stars') ★
+                        button.rating-star(type='button' data-rating-value='3' aria-label='3 stars') ★
+                        button.rating-star(type='button' data-rating-value='4' aria-label='4 stars') ★
+                        button.rating-star(type='button' data-rating-value='5' aria-label='5 stars') ★
+                    p.form-feedback(data-rating-feedback)
+
+                .actions
+                    if user && Number(user.id) === Number(listing.user_id)
+                        a.button(href='/listings/edit/' + listing.id) Edit listing
+                        form(action='/listings/delete/' + listing.id, method='POST')
+                            button.button.danger(type='submit') Delete listing
+                    a.button.secondary(href='/messages') Message seller
+                    a.button.secondary(href='/listings') Back to listings
+    else
+        .form-card
+            h2 Listing not found
+            p The requested item could not be found.
+            a.button.secondary(href='/listings') Back to listings

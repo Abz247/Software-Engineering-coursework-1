@@ -1,0 +1,59 @@
+extends layout
+
+block content
+  .page-header
+    div
+      h1.page-header__title Messages
+      p.page-header__subtitle Keep conversations about swaps, questions, and collection times in one place.
+    span.page-header__count 3 chats
+
+  .messages-layout
+    aside.message-sidebar
+      h2.panel-title Conversations
+
+      button.conversation-card.active(type='button' data-conversation='Maya')
+        span.conversation-card__avatar MS
+        span.conversation-card__body
+          strong Maya Smith
+          small Is the denim jacket still available?
+
+      button.conversation-card(type='button' data-conversation='Jordan')
+        span.conversation-card__avatar.conversation-card__avatar--alt JD
+        span.conversation-card__body
+          strong Jordan Diaz
+          small Can collect from campus tomorrow.
+
+      button.conversation-card(type='button' data-conversation='Priya')
+        span.conversation-card__avatar.conversation-card__avatar--warm PK
+        span.conversation-card__body
+          strong Priya Khan
+          small Thanks for the quick reply.
+
+    section.chat-panel
+      .chat-panel__header
+        div
+          p.chat-panel__eyebrow Active chat
+          h2(data-chat-title) Maya Smith
+        span.status-pill Online
+
+      .chat-thread(data-chat-thread)
+        article.message-bubble.message-bubble--incoming
+          p Hi, is the denim jacket still available?
+          span 09:12
+        article.message-bubble.message-bubble--outgoing
+          p Yes, it is. I can bring it to campus this afternoon.
+          span 09:15
+        article.message-bubble.message-bubble--incoming
+          p Great. Could you send the size again?
+          span 09:16
+
+      form.message-form(data-message-form novalidate)
+        .form-group
+          label(for='message') Message
+          textarea#message(name='message' rows='4' placeholder='Write a message...')
+
+        .actions
+          button.button(type='submit') Send message
+          button.button.secondary(type='button') Attach
+
+        p.form-feedback(data-form-feedback)

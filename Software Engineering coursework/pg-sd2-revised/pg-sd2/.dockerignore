@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+db
+db/*
+db_backup
+db_backup/*
+mysql
+mysql/*
+*.sock
