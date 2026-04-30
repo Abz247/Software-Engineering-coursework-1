@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  .page-header
+    h1.page-header__title Messages
+
+  if conversations && conversations.length
+    ul.user-list
+      each conv in conversations
+        li.user-list__item
+          a(href=`/messages/${conv.user_id}`)
+            .user-list__avatar= conv.username.charAt(0).toUpperCase()
+            .user-list__info
+              .user-list__name
+                = conv.username
+                if conv.unread_count > 0
+                  span.badge.badge--unread= conv.unread_count
+              .user-list__email= conv.last_message.length > 70 ? conv.last_message.substring(0, 70) + '…' : conv.last_message
+  else
+    p.empty-state No conversations. Browse listings and message a seller to get started.

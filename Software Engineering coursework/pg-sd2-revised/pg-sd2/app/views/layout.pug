@@ -22,8 +22,8 @@ html(lang='en')
           a.nav__link(href='/listings') Listings
           a.nav__link(href='/listings/create') Sell an Item
           a.nav__link(href='/users') Users
-          a.nav__link(href='/messages') Messages
           if user
+            a.nav__link(href='/messages/inbox') Messages
             a.nav__link(href='/users/' + user.id) My Profile
             a.nav__link(href='/logout') Logout
           else

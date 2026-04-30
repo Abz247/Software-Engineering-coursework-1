@@ -25,9 +25,10 @@ app.use(session({
 const { attachUser } = require('./middleware/auth');
 app.use(attachUser);
 
+const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const listingsRoutes = require('./routes/listings');
-const authRoutes = require('./routes/auth');
+const messageRoutes = require('./routes/messages');
 const listingModel = require('./models/listingModel');
 
 app.get('/', async function(req, res) {
@@ -48,13 +49,10 @@ app.get('/', async function(req, res) {
     }
 });
 
-app.get('/messages', function(req, res) {
-    res.render('messages', { title: 'Messages' });
-});
-
 app.use('/', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/listings', listingsRoutes);
+app.use('/messages', messageRoutes);
 
 app.get('/categories/:id', async function(req, res) {
     try {
