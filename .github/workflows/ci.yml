@@ -1,11 +1,11 @@
 name: ClosetSwap CI Pipeline
 
 on:
+ on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, Sprint-4-Abdala ]
   pull_request:
-    branches: [ main, master ]
-
+    branches: [ main, master, Sprint-4-Abdala ]
 jobs:
   lint:
     name: Lint Code
