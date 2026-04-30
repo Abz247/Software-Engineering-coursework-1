@@ -64,3 +64,6 @@ app.use("/users", userRoutes);
 app.listen(3000, function () {
     console.log("ClosetSwap running at http://127.0.0.1:3000/");
 });
+
+const ratingsRoutes = require("./routes/ratings");
+app.use("/ratings", ratingsRoutes);
