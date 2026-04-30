@@ -39,6 +39,8 @@ block content
                         a.button(href='/listings/edit/' + listing.id) Edit listing
                         form(action='/listings/delete/' + listing.id, method='POST')
                             button.button.danger(type='submit') Delete listing
+                    else if user
+                        a.button(href=`/messages/${listing.user_id}`) Message Seller
                     a.button.secondary(href='/listings') Back to listings
     else
         .form-card

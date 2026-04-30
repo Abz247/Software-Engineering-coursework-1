@@ -16,6 +16,7 @@ html(lang='en')
           a(href='/listings/create') Sell an Item
           a(href='/users') Users
           if user
+            a(href='/messages/inbox') Messages
             a(href=`/users/${user.id}`) My Profile
             a(href='/logout') Logout
           else

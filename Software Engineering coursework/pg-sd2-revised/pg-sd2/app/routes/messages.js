@@ -1,109 +1,18 @@
-/**
- * Messages Routes – Sprint 4 Messaging System
- *
- * All routes require authentication (protected by requireLogin middleware).
- * Users can only send/view messages involving themselves.
- */
-
 const express = require("express");
 const router = express.Router();
 const db = require("../services/db");
 const { requireLogin } = require("../middleware/auth");
 
-// All message routes require login
 router.use(requireLogin);
 
-// =============================================================
-//  POST /messages/send – send a new message
-//  Body: { receiver_id, content }
-// =============================================================
-router.post("/send", async function (req, res) {
-    const senderId = req.session.user.id;
-    const { receiver_id, content } = req.body;
-
-    // ---- Validation ----
-    if (!receiver_id || !content) {
-        return res.status(400).json({
-            success: false,
-            error: "receiver_id and content are required"
-        });
-    }
-
-    if (content.trim().length === 0) {
-        return res.status(400).json({
-            success: false,
-            error: "Message cannot be empty"
-        });
-    }
-
-    if (content.length > 1000) {
-        return res.status(400).json({
-            success: false,
-            error: "Message too long (max 1000 characters)"
-        });
-    }
-
-    if (parseInt(receiver_id) === senderId) {
-        return res.status(400).json({
-            success: false,
-            error: "You cannot message yourself"
-        });
-    }
-
-    try {
-        // ---- Verify receiver exists ----
-        const receiverCheck = await db.query(
-            "SELECT id, username FROM users WHERE id = ?",
-            [receiver_id]
-        );
-
-        if (receiverCheck.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: "Receiver not found"
-            });
-        }
-
-        // ---- Insert the message ----
-        const result = await db.query(
-            "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)",
-            [senderId, receiver_id, content.trim()]
-        );
-
-        res.json({
-            success: true,
-            message: {
-                id: result.insertId,
-                sender_id: senderId,
-                receiver_id: parseInt(receiver_id),
-                content: content.trim(),
-                created_at: new Date().toISOString()
-            }
-        });
-
-    } catch (err) {
-        console.error("Send message error:", err);
-        res.status(500).json({
-            success: false,
-            error: "Could not send message"
-        });
-    }
-});
-
-// =============================================================
-//  GET /messages/inbox – list all conversations for logged-in user
-//  Returns the latest message from each person they've talked to
-// =============================================================
+// GET /messages/inbox – render inbox page
 router.get("/inbox", async function (req, res) {
     const userId = req.session.user.id;
-
     try {
-        // Get the latest message from each conversation partner
         const conversations = await db.query(
             `SELECT
                 other_user.id AS user_id,
                 other_user.username,
-                other_user.email,
                 m.content AS last_message,
                 m.created_at AS last_message_time,
                 m.sender_id AS last_sender_id,
@@ -123,50 +32,46 @@ router.get("/inbox", async function (req, res) {
              ORDER BY m.created_at DESC`,
             [userId, userId, userId, userId, userId, userId]
         );
-
-        res.json({
-            success: true,
-            conversations: conversations
-        });
-
+        res.render("inbox", { conversations });
     } catch (err) {
         console.error("Inbox error:", err);
-        res.status(500).json({
-            success: false,
-            error: "Could not load inbox"
-        });
+        res.status(500).send("Could not load inbox");
     }
 });
 
-// =============================================================
-//  GET /messages/:userId – get full conversation with another user
-// =============================================================
+// GET /messages/unread/count – JSON badge count (must be before /:userId)
+router.get("/unread/count", async function (req, res) {
+    const userId = req.session.user.id;
+    try {
+        const result = await db.query(
+            "SELECT COUNT(*) AS count FROM messages WHERE receiver_id = ? AND is_read = FALSE",
+            [userId]
+        );
+        res.json({ success: true, unread_count: result[0].count });
+    } catch (err) {
+        console.error("Unread count error:", err);
+        res.status(500).json({ success: false, error: "Could not get unread count" });
+    }
+});
+
+// GET /messages/:userId – render conversation page
 router.get("/:userId", async function (req, res) {
     const currentUserId = req.session.user.id;
     const otherUserId = parseInt(req.params.userId);
 
     if (isNaN(otherUserId)) {
-        return res.status(400).json({
-            success: false,
-            error: "Invalid user ID"
-        });
+        return res.status(400).send("Invalid user ID");
     }
 
     try {
-        // ---- Check the other user exists ----
         const userCheck = await db.query(
             "SELECT id, username FROM users WHERE id = ?",
             [otherUserId]
         );
-
         if (userCheck.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: "User not found"
-            });
+            return res.status(404).send("User not found");
         }
 
-        // ---- Fetch all messages between the two users ordered by time ----
         const messages = await db.query(
             `SELECT id, sender_id, receiver_id, content, is_read, created_at
              FROM messages
@@ -176,52 +81,56 @@ router.get("/:userId", async function (req, res) {
             [currentUserId, otherUserId, otherUserId, currentUserId]
         );
 
-        // ---- Mark messages from the other user as read ----
         await db.query(
-            `UPDATE messages
-             SET is_read = TRUE
+            `UPDATE messages SET is_read = TRUE
              WHERE sender_id = ? AND receiver_id = ? AND is_read = FALSE`,
             [otherUserId, currentUserId]
         );
 
-        res.json({
-            success: true,
+        res.render("conversation", {
             other_user: userCheck[0],
-            messages: messages
+            messages,
+            currentUserId
         });
-
     } catch (err) {
         console.error("Get conversation error:", err);
-        res.status(500).json({
-            success: false,
-            error: "Could not load conversation"
-        });
+        res.status(500).send("Could not load conversation");
     }
 });
 
-// =============================================================
-//  GET /messages/unread/count – get unread message count (for badge)
-// =============================================================
-router.get("/unread/count", async function (req, res) {
-    const userId = req.session.user.id;
+// POST /messages/send – send a message then redirect to conversation
+router.post("/send", async function (req, res) {
+    const senderId = req.session.user.id;
+    const { receiver_id, content } = req.body;
+
+    if (!receiver_id || !content || content.trim().length === 0) {
+        return res.redirect("back");
+    }
+    if (content.length > 1000) {
+        return res.redirect("back");
+    }
+    if (parseInt(receiver_id) === senderId) {
+        return res.redirect("back");
+    }
 
     try {
-        const result = await db.query(
-            "SELECT COUNT(*) AS count FROM messages WHERE receiver_id = ? AND is_read = FALSE",
-            [userId]
+        const receiverCheck = await db.query(
+            "SELECT id FROM users WHERE id = ?",
+            [receiver_id]
+        );
+        if (receiverCheck.length === 0) {
+            return res.redirect("/messages/inbox");
+        }
+
+        await db.query(
+            "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)",
+            [senderId, receiver_id, content.trim()]
         );
 
-        res.json({
-            success: true,
-            unread_count: result[0].count
-        });
-
+        res.redirect(`/messages/${receiver_id}`);
     } catch (err) {
-        console.error("Unread count error:", err);
-        res.status(500).json({
-            success: false,
-            error: "Could not get unread count"
-        });
+        console.error("Send message error:", err);
+        res.redirect("back");
     }
 });
 

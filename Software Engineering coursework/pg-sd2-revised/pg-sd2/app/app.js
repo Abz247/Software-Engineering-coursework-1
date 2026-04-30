@@ -1,4 +1,3 @@
-cat > app/app.js << 'EOF'
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -59,4 +58,3 @@ app.get('/categories/:id', async (req, res) => {
 app.listen(3000, function() {
     console.log('Server running at http://127.0.0.1:3000/');
 });
-EOF

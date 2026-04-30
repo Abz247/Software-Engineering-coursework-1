@@ -332,3 +332,14 @@ a:hover { text-decoration: underline; }
 
 /* ── Footer ───────────────────────────────────────────── */
 .footer { border-top: 1px solid var(--color-border); padding: 1.25rem 1.5rem; text-align: center; font-size: 0.8125rem; color: var(--color-muted); }
+
+/* ── Messaging ────────────────────────────────────────── */
+.badge--unread { background: var(--color-accent); color: #fff; border-color: var(--color-accent); margin-left: 8px; }
+.chat-thread { display: flex; flex-direction: column; gap: 0.75rem; background: white; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.25rem; min-height: 200px; max-height: 500px; overflow-y: auto; }
+.chat-bubble { display: flex; flex-direction: column; max-width: 70%; }
+.chat-bubble--sent { align-self: flex-end; align-items: flex-end; }
+.chat-bubble--received { align-self: flex-start; align-items: flex-start; }
+.chat-bubble__text { margin: 0; padding: 0.6rem 0.9rem; border-radius: 16px; font-size: 0.9375rem; line-height: 1.5; word-break: break-word; }
+.chat-bubble--sent .chat-bubble__text { background: var(--color-text); color: #fff; border-bottom-right-radius: 4px; }
+.chat-bubble--received .chat-bubble__text { background: var(--color-bg); border: 1px solid var(--color-border); border-bottom-left-radius: 4px; }
+.chat-bubble__time { font-size: 0.75rem; color: var(--color-muted); margin-top: 3px; }
