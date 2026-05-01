@@ -1,0 +1,97 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title ClosetSwap
+    link(rel='stylesheet' href='/style.css')
+    style.
+      .auth-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1rem 0;
+        color: #888;
+        font-size: 0.85rem;
+      }
+      .auth-divider::before,
+      .auth-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+      }
+      .auth-divider span { padding: 0 0.75rem; }
+      #clerk-sign-in { min-height: 40px; }
+      #logout-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        padding: 0;
+        text-decoration: none;
+      }
+      #logout-btn:hover { text-decoration: underline; }
+  body
+    header.site-header
+      .container
+        h1.logo
+          a(href='/') ClosetSwap
+        nav.nav
+          a(href='/') Home
+          a(href='/listings') Listings
+          a(href='/listings/create') Sell an Item
+          a(href='/users') Users
+          if user
+            a(href=`/users/${user.id}`) My Profile
+            button#logout-btn Logout
+          else
+            a(href='/login') Login
+            a(href='/register') Register
+    main.container
+      if success
+        .empty-state(style='border-color:#b7e4c7;background:#f1fff4;margin-bottom:1rem;')= success
+      if error
+        .error-box(style='margin-bottom:1rem;')= error
+      block content
+
+    if user
+      script.
+        document.getElementById('logout-btn').addEventListener('click', async function() {
+          try {
+            var pk = 'pk_test_Zmx5aW5nLWNoaXBtdW5rLTc0LmNsZXJrLmFjY291bnRzLmRldiQ';
+            window.__clerk_publishable_key = pk;
+
+            // Load Clerk if it isn't already on this page
+            if (!window.Clerk || !window.Clerk.signOut) {
+              await new Promise(function(resolve, reject) {
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+              });
+
+              var attempts = 0;
+              while ((!window.Clerk || !window.Clerk.load) && attempts < 30) {
+                await new Promise(function(r) { setTimeout(r, 100); });
+                attempts++;
+              }
+
+              await window.Clerk.load({
+                signInUrl: '/login',
+                signUpUrl: '/register'
+              });
+            }
+
+            // Sign out of Clerk first to clear its browser session
+            if (window.Clerk && window.Clerk.isSignedIn) {
+              await window.Clerk.signOut();
+            }
+          } catch(e) {
+            console.warn('Clerk signOut error:', e);
+          }
+
+          // Now destroy the Express session
+          window.location.href = '/logout';
+        });

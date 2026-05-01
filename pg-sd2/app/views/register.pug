@@ -1,0 +1,63 @@
+extends layout
+
+block content
+  .auth-card
+    h1.auth-card__title Create account
+    p.auth-card__sub Already have one?&nbsp;
+      a(href='/login') Sign in
+
+    if errors && errors.length
+      .error-box(style='margin-bottom:1rem;')
+        ul.error-list
+          each err in errors
+            li= err
+
+    form.form(action='/register', method='POST')
+      .form__group
+        label.form__label(for='username') Username
+        input.form__input(
+          type='text',
+          id='username',
+          name='username',
+          value=formData && formData.username,
+          placeholder='e.g. johndoe',
+          required,
+          autocomplete='username'
+        )
+
+      .form__group
+        label.form__label(for='email') Email
+        input.form__input(
+          type='email',
+          id='email',
+          name='email',
+          value=formData && formData.email,
+          placeholder='you@example.com',
+          required,
+          autocomplete='email'
+        )
+
+      .form__group
+        label.form__label(for='password') Password
+        input.form__input(
+          type='password',
+          id='password',
+          name='password',
+          placeholder='At least 8 characters, 1 uppercase, 1 number',
+          required,
+          minlength='8',
+          autocomplete='new-password'
+        )
+
+      .form__group
+        label.form__label(for='confirmPassword') Confirm password
+        input.form__input(
+          type='password',
+          id='confirmPassword',
+          name='confirmPassword',
+          placeholder='Repeat your password',
+          required,
+          autocomplete='new-password'
+        )
+
+      button.btn.btn--primary(type='submit') Create account

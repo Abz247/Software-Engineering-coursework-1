@@ -1,0 +1,62 @@
+extends layout
+
+block content
+    .form-card
+        h2 Edit Listing
+
+        if errors && errors.length
+            .error-box
+                h3 Please fix the following:
+                ul.error-list
+                    each error in errors
+                        li= error
+
+        form(action='/listings/edit/' + listing.id, method='POST')
+            .form-group
+                label(for='title') Title
+                input#title(type='text' name='title' required minlength='3' maxlength='100' value=(formData && formData.title) || listing.title || '')
+
+            .form-group
+                label(for='description') Description
+                textarea#description(name='description' required minlength='10')= (formData && formData.description) || listing.description || ''
+
+            .form-group
+                label(for='price') Price
+                input#price(type='number' step='0.01' min='0' name='price' required value=(formData && formData.price) || listing.price || '')
+
+            .form-group
+                label(for='size') Size
+                input#size(type='text' name='size' value=(formData && formData.size) || listing.size || '')
+
+            .form-group
+                label(for='condition') Condition
+                - const currentCondition = (formData && formData.condition) || listing.condition || ''
+                select#condition(name='condition' required)
+                    option(value='') Select condition
+                    option(value='New with tags' selected=currentCondition==='New with tags') New with tags
+                    option(value='Excellent' selected=currentCondition==='Excellent') Excellent
+                    option(value='Good' selected=currentCondition==='Good') Good
+                    option(value='Fair' selected=currentCondition==='Fair') Fair
+
+            .form-group
+                label(for='image_url') Image URL
+                input#image_url(type='url' name='image_url' value=(formData && formData.image_url) || listing.image_url || '')
+
+            .form-group
+                label(for='category_id') Category
+                - const currentCategory = (formData && formData.category_id) || listing.category_id || ''
+                select#category_id(name='category_id' required)
+                    option(value='') Select a category
+                    if categories && categories.length
+                        each category in categories
+                            option(
+                                value=category.id
+                                selected=String(currentCategory) === String(category.id)
+                            )= category.name
+
+            .actions
+                button.button(type='submit') Save changes
+                a.button.secondary(href='/listings/' + listing.id) Cancel
+
+        form(action='/listings/delete/' + listing.id, method='POST', style='margin-top: 1rem;')
+            button.button.danger(type='submit') Delete listing

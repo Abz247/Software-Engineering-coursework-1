@@ -1,0 +1,49 @@
+extends layout
+
+block content
+  .auth-card
+    h1.auth-card__title Signing out...
+    p.auth-card__sub Please wait a moment.
+
+  script.
+    (async function() {
+      try {
+        var pk = 'pk_test_Zmx5aW5nLWNoaXBtdW5rLTc0LmNsZXJrLmFjY291bnRzLmRldiQ';
+        window.__clerk_publishable_key = pk;
+
+        // Load Clerk if not already present
+        if (!window.Clerk) {
+          await new Promise(function(resolve, reject) {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+
+        // Wait for Clerk instance to be ready
+        var attempts = 0;
+        while ((!window.Clerk || !window.Clerk.load) && attempts < 30) {
+          await new Promise(function(r) { setTimeout(r, 100); });
+          attempts++;
+        }
+
+        if (window.Clerk && window.Clerk.load) {
+          await window.Clerk.load({
+            signInUrl: '/login',
+            signUpUrl: '/register'
+          });
+
+          // Sign out of Clerk completely, removing all sessions
+          if (window.Clerk.isSignedIn) {
+            await window.Clerk.signOut();
+          }
+        }
+      } catch(e) {
+        console.warn('Clerk sign-out error:', e);
+      }
+
+      // Always redirect to login after attempting Clerk sign-out
+      window.location.href = '/login';
+    })();

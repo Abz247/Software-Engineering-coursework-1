@@ -1,0 +1,23 @@
+# ─── MySQL ────────────────────────────────────────────────────────────────────
+MYSQL_ROOT_PASSWORD=password
+MYSQL_DATABASE=sd2-db
+MYSQL_ROOT_USER=root
+
+# Used by db.js inside the app container to reach the db service
+DB_CONTAINER=db
+DB_PORT=3306
+
+# ─── phpMyAdmin ───────────────────────────────────────────────────────────────
+PMA_HOST=db
+
+# ─── Express session ──────────────────────────────────────────────────────────
+SESSION_SECRET=change-me-to-a-long-random-string
+
+# ─── Clerk ────────────────────────────────────────────────────────────────────
+# Get both keys from https://dashboard.clerk.com → API Keys
+
+# Backend secret key (used by @clerk/clerk-sdk-node on the server)
+CLERK_SECRET_KEY=sk_test_REPLACE_WITH_YOUR_SECRET_KEY
+
+# Frontend publishable key (sent to the browser via login.pug)
+CLERK_PUBLISHABLE_KEY=pk_test_REPLACE_WITH_YOUR_PUBLISHABLE_KEY

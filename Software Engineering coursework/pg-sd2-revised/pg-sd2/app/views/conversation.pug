@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  .page-header
+    div
+      h1.page-header__title
+        a(href='/messages/inbox') Messages
+        |  > #{other_user.username}
+      p.page-header__subtitle Arrange swaps, collection times, and item questions.
+
+  section.chat-panel
+    .chat-panel__header
+      div
+        p.chat-panel__eyebrow Active chat
+        h2= other_user.username
+      a.button.secondary(href='/messages/inbox') Back to inbox
+
+    .chat-thread(data-chat-thread)
+      if messages && messages.length
+        each msg in messages
+          article.message-bubble(class=msg.sender_id === currentUserId ? 'message-bubble--outgoing' : 'message-bubble--incoming')
+            p= msg.content
+            span= new Date(msg.created_at).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'})
+      else
+        p.empty-state No messages yet.
+
+    form.message-form(action='/messages/send' method='POST' data-message-form)
+      input(type='hidden' name='receiver_id' value=other_user.id)
+      .form-group
+        label(for='content') Message
+        textarea#content.form__input(name='content' placeholder='Type a message...' required maxlength='1000' rows='3')
+      button.button(type='submit') Send

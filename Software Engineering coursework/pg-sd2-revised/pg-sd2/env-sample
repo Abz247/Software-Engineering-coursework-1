@@ -7,3 +7,4 @@ MYSQL_ROOT_USER=root
 DB_CONTAINER=db
 DB_PORT=3306
 SESSION_SECRET=closetswap-change-this-secret-abc123
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here

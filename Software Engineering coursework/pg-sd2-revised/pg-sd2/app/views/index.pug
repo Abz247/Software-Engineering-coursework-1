@@ -2,30 +2,49 @@ extends layout
 
 block content
   .hero
-    h1 Sustainable Fashion for Students
-    p Buy and sell pre-loved clothing within your university community.
+    .hero__content
+      p.hero__eyebrow Student clothing marketplace
+      h1 Sustainable Fashion for Students
+      p ClosetSwap helps students buy, sell, and exchange second-hand clothing on campus.
     .hero-actions
       a.btn.btn-primary(href="/listings") Browse Items
-      if !user
+      if user
+        a.btn.btn-outline(href="/listings/create") Sell an Item
+      else
         a.btn.btn-outline(href="/register") Join Now
 
-  h2 Latest Listings
+  .section-heading
+    div
+      h2 Latest Listings
+      if user
+        p Signed in as #[strong #{user.username}].
+      else
+        p Create an account or sign in to post listings and manage your profile.
+    a.btn.btn-outline(href="/listings") View All
 
   if listings && listings.length
     .listings-grid
       each item in listings
-        .listing-card
-          if item.image_url
-            img.listing-img(src=item.image_url alt=item.title)
+        article.listing-card
+          a(href="/listings/" + item.id)
+            if item.image_url
+              img.listing-img(src=item.image_url alt=item.title)
+            else
+              img.listing-img(src="https://via.placeholder.com/600x400?text=No+Image" alt="No image available")
           .listing-card-body
-            h3.listing-title= item.title
-            p.listing-price= "£" + parseFloat(item.price).toFixed(2)
-            p.listing-meta= item.size + " · " + item.condition
+            h3.listing-title
+              a(href="/listings/" + item.id)= item.title
+            p.listing-price= "GBP " + parseFloat(item.price).toFixed(2)
+            if item.size || item.condition
+              p.listing-meta= [item.size, item.condition].filter(Boolean).join(" / ")
             if item.category
               span.listing-tag= item.category
             p.listing-meta
-              | by 
-              a(href="/users/" + item.user_id)= item.seller
+              | Seller: 
+              if item.user_id
+                a(href="/users/" + item.user_id)= item.seller || item.username || "Unknown seller"
+              else
+                | #{item.seller || item.username || "Unknown seller"}
             a.btn.btn-sm(href="/listings/" + item.id) View Details
   else
     p.empty-state No items have been listed yet.

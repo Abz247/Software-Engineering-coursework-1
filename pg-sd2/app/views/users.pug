@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  .page-header
+    h1.page-header__title All Users
+    span.page-header__count #{users.length} member#{users.length !== 1 ? 's' : ''}
+
+  if users.length
+    ul.user-list
+      each user in users
+        li.user-list__item
+          a.user-list__link(href=`/users/${user.id}`)
+            .user-list__avatar= user.username.charAt(0).toUpperCase()
+            .user-list__info
+              span.user-list__name= user.username
+              span.user-list__email= user.email
+  else
+    p.empty-state No users found.
